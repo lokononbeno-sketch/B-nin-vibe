@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Bénin Vibe",
-    "slug": "benin-vibe",
+    "slug": "benin-vibe-2004",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -47,16 +47,16 @@
     },
     "extra": {
       "eas": {
-        "projectId": "552f0665-e30d-4f11-9ea9-97bc22a22809"
+        "projectId": "0614528e-c00a-4126-849b-c37aca93a066"
       }
     },
     "updates": {
-      "url": "https://u.expo.dev/552f0665-e30d-4f11-9ea9-97bc22a22809"
+      "url": "https://u.expo.dev/0614528e-c00a-4126-849b-c37aca93a066"
     },
     "runtimeVersion": {
       "policy": "appVersion"
     },
-    "owner": "arcadalabs",
+    "owner": "benolilokonon",
     "platforms": [
       "ios",
       "android",

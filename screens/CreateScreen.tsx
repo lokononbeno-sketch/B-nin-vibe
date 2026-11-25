@@ -61,7 +61,7 @@ export default function CreateScreen({navigation}:any){
   </View>
   {errors.length>0&&<View style={s.errBox}>{errors.map(er=><Text key={er} style={s.errT}>• {er}</Text>)}</View>}
   <Pressable onPress={publish}><LinearGradient colors={GRAD} style={s.publish}><Ionicons name="rocket" size={19} color="#fff"/><Text style={s.publishT}>Publier mon événement</Text></LinearGradient></Pressable>
-  <Text style={s.fine}>En publiant, tu t'engages à accueillir les inscrits dans de bonnes conditions et à respecter les règles de la communauté VibeOut.</Text>
+  <Text style={s.fine}>En publiant, tu t'engages à accueillir les inscrits dans de bonnes conditions et à respecter les règles de la communauté Bénin Vibe.</Text>
  </ScrollView></KeyboardAvoidingView></SafeAreaView>;
 }
 const s=StyleSheet.create({

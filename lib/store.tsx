@@ -83,7 +83,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     const payload={organizer_id:user.id,title:e.title,category:e.category,image_url:e.image,starts_at:e.startsAt,venue:e.lieu,city:e.ville,country:'Bénin',price:e.price,currency:'XOF',capacity:e.capacity,description:e.description,tags:e.tags,ambiance:e.ambiance,visibility:e.visibility==='prive'?'private':'public',status:'published'};
     const {data,error}=await supabase.from('events').insert(payload).select('*').single();
     if(error)throw error;
-    const saved=toEvent(data,profile,1);saved.isMine=true;setEvents(prev=>[...prev,saved]);return saved;
+    const saved=toEvent(data,profile,0);saved.isMine=true;setEvents(prev=>[...prev,saved]);return saved;
   };
   const toggleRsvp=async(id:string)=>{
     if(!user)throw new Error('Connecte-toi pour participer.');

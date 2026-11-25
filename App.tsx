@@ -18,7 +18,6 @@ import CreateScreen from './screens/CreateScreen';
 import MyEventsScreen from './screens/MyEventsScreen';
 import ProfileScreen from './screens/ProfileScreen';
 import EventDetailScreen from './screens/EventDetailScreen';
-import CodeSourceScreen from './screens/CodeSourceScreen';
 import AuthScreen from './screens/AuthScreen';
 import OrganizerDashboardScreen from './screens/OrganizerDashboardScreen';
 import AdminDashboardScreen from './screens/AdminDashboardScreen';
@@ -44,7 +43,6 @@ function AppContent() {
     <Stack.Screen name="Tabs" component={Tabs} />
     <Stack.Screen name="Auth" component={AuthScreen} options={{ presentation: 'modal' }} />
     <Stack.Screen name="EventDetail" component={EventDetailScreen} options={{ animation: 'slide_from_right' }} />
-    <Stack.Screen name="CodeSource" component={CodeSourceScreen} options={{ animation: 'slide_from_right' }} />
     <Stack.Screen name="OrganizerDashboard" component={OrganizerDashboardScreen} options={{ animation: 'slide_from_right' }} />
     <Stack.Screen name="AdminDashboard" component={AdminDashboardScreen} options={{ animation: 'slide_from_right' }} />
   </Stack.Navigator></NavigationContainer>;

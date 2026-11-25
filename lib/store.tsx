@@ -66,7 +66,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   };
   useEffect(()=>{
     let alive=true;
-    supabase.auth.getSession().then(({data:{session:initial}})=>{if(alive){setSession(initial);setAuthLoading(false);refresh().catch(e=>console.warn('Bénin Vibe refresh:',e.message));}});
+    supabase.auth.getSession().then(({data:{session:initial}})=>{if(alive){setSession(initial);setAuthLoading(false);refresh().catch(e=>console.warn('Bénin Vibe refresh:',e.message));}}).catch(e=>{if(alive){setAuthLoading(false);console.warn('Bénin Vibe auth:',e.message);}});
     const {data:{subscription}}=supabase.auth.onAuthStateChange((_event,next)=>{setSession(next);setAuthLoading(false);setTimeout(()=>{if(alive)refresh().catch(e=>console.warn('Bénin Vibe refresh:',e.message));},0);});
     return ()=>{alive=false;subscription.unsubscribe();};
   },[]);

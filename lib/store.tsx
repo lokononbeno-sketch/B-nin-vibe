@@ -44,7 +44,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const refresh = async () => {
     const {data:{session:current}}=await supabase.auth.getSession();
     setSession(current);
-    const {data:rows,error}=await supabase.from('events').select('*').eq('status','published').order('starts_at',{ascending:true});
+    const {data:rows,error}=await supabase.from('events').select('*').eq('status','published').gte('starts_at',new Date().toISOString()).order('starts_at',{ascending:true});
     if(error) throw error;
     const ids=(rows||[]).map((r:any)=>r.organizer_id);
     const {data:profiles}=ids.length ? await supabase.from('profiles').select('id,display_name,avatar_url').in('id',[...new Set(ids)]) : {data:[] as any[]};
@@ -87,8 +87,8 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   };
   const toggleRsvp=async(id:string)=>{
     if(!user)throw new Error('Connecte-toi pour participer.');
-    if(rsvps.includes(id)){const {error}=await supabase.from('event_participants').delete().eq('event_id',id).eq('user_id',user.id);if(error)throw error;setRsvps(p=>p.filter(x=>x!==id));}
-    else{const {error}=await supabase.from('event_participants').upsert({event_id:id,user_id:user.id,status:'going'},{onConflict:'event_id,user_id'});if(error)throw error;setRsvps(p=>[...p,id]);}
+    if(rsvps.includes(id)){const {error}=await supabase.from('event_participants').delete().eq('event_id',id).eq('user_id',user.id);if(error)throw error;setRsvps(p=>p.filter(x=>x!==id));setEvents(p=>p.map(e=>e.id===id?{...e,participants:Math.max(0,e.participants-1)}:e));}
+    else{const {error}=await supabase.from('event_participants').upsert({event_id:id,user_id:user.id,status:'going'},{onConflict:'event_id,user_id'});if(error)throw error;setRsvps(p=>[...p,id]);setEvents(p=>p.map(e=>e.id===id?{...e,participants:e.participants+1}:e));}
   };
   const toggleFav=async(id:string)=>{
     if(!user)throw new Error('Connecte-toi pour enregistrer un favori.');

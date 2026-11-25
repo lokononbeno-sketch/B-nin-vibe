@@ -95,8 +95,8 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   };
   const toggleRsvp=async(id:string,quantity=1)=>{
     if(!user)throw new Error('Connecte-toi pour réserver.');
-    if(rsvps.includes(id)){const {error}=await supabase.from('event_participants').delete().eq('event_id',id).eq('user_id',user.id);if(error)throw error;await refresh();}
-    else{const {error}=await supabase.from('event_participants').upsert({event_id:id,user_id:user.id,status:'going',ticket_quantity:quantity,payment_status:'pending'},{onConflict:'event_id,user_id'});if(error)throw error;setRsvps(p=>[...p,id]);setEvents(p=>p.map(e=>e.id===id?{...e,participants:e.participants+quantity}:e));}
+    if(rsvps.includes(id)){const {error}=await supabase.rpc('cancel_event_reservation',{p_event_id:id});if(error)throw error;await refresh();}
+    else{const {error}=await supabase.rpc('reserve_event_tickets',{p_event_id:id,p_quantity:quantity});if(error)throw error;await refresh();}
   };
   const toggleFav=async(id:string)=>{
     if(!user)throw new Error('Connecte-toi pour enregistrer un favori.');

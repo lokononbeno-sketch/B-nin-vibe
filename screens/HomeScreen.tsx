@@ -66,7 +66,7 @@ export default function HomeScreen({ navigation }: any) {
       {trending.map((e, i) => (
         <Pressable key={e.id} onPress={() => open(e.id)} style={s.trendRow}>
           <Text style={[s.rank, i === 0 && { color: C.pink }]}>{i + 1}</Text><Image source={{ uri: e.image }} style={s.trendImg} contentFit="cover" />
-          <View style={{ flex: 1 }}><Text style={s.trendTitle} numberOfLines={1}>{e.title}</Text><Text style={s.trendMeta}>{e.ville} • {e.participants.toLocaleString('fr-FR')} participants</Text></View>
+          <View style={{ flex: 1 }}><Text style={s.trendTitle} numberOfLines={1}>{e.title}</Text><Text style={s.trendMeta}>{e.ville} • {e.participants.toLocaleString('fr-FR')} tickets réservés</Text></View>
           <Ionicons name="trending-up" size={18} color={C.lime} />
         </Pressable>
       ))}

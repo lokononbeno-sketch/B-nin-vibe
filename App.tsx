@@ -20,6 +20,8 @@ import ProfileScreen from './screens/ProfileScreen';
 import EventDetailScreen from './screens/EventDetailScreen';
 import CodeSourceScreen from './screens/CodeSourceScreen';
 import AuthScreen from './screens/AuthScreen';
+import OrganizerDashboardScreen from './screens/OrganizerDashboardScreen';
+import AdminDashboardScreen from './screens/AdminDashboardScreen';
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 function CreateTabButton({ onPress }: any) {
@@ -36,10 +38,16 @@ function Tabs() {
 }
 const navTheme = { ...DarkTheme, colors: { ...DarkTheme.colors, background: C.bg, card: C.bg, border: C.line, primary: C.pink } };
 function AppContent() {
-  const {user,authLoading}=useStore();
+  const {authLoading}=useStore();
   if(authLoading)return <View style={{flex:1,backgroundColor:C.bg,alignItems:'center',justifyContent:'center'}}><ActivityIndicator size="large" color={C.pink}/></View>;
-  if(!user)return <AuthScreen/>;
-  return <NavigationContainer theme={navTheme}><StatusBar style="light" /><Stack.Navigator screenOptions={{ headerShown: false, contentStyle: { backgroundColor: C.bg } }}><Stack.Screen name="Tabs" component={Tabs} /><Stack.Screen name="EventDetail" component={EventDetailScreen} options={{ animation: 'slide_from_right' }} /><Stack.Screen name="CodeSource" component={CodeSourceScreen} options={{ animation: 'slide_from_right' }} /></Stack.Navigator></NavigationContainer>;
+  return <NavigationContainer theme={navTheme}><StatusBar style="light" /><Stack.Navigator screenOptions={{ headerShown: false, contentStyle: { backgroundColor: C.bg } }}>
+    <Stack.Screen name="Tabs" component={Tabs} />
+    <Stack.Screen name="Auth" component={AuthScreen} options={{ presentation: 'modal' }} />
+    <Stack.Screen name="EventDetail" component={EventDetailScreen} options={{ animation: 'slide_from_right' }} />
+    <Stack.Screen name="CodeSource" component={CodeSourceScreen} options={{ animation: 'slide_from_right' }} />
+    <Stack.Screen name="OrganizerDashboard" component={OrganizerDashboardScreen} options={{ animation: 'slide_from_right' }} />
+    <Stack.Screen name="AdminDashboard" component={AdminDashboardScreen} options={{ animation: 'slide_from_right' }} />
+  </Stack.Navigator></NavigationContainer>;
 }
 export default function App() {
   const [fontsLoaded] = useFonts({ ...Ionicons.font, ...FontAwesome.font });

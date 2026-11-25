@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
-import { Alert } from 'react-native';
 import { Session, User } from '@supabase/supabase-js';
 import { VEvent } from './types';
 import { supabase } from './supabase';

@@ -23,7 +23,7 @@ export default function HomeScreen({ navigation }: any) {
     <View>
       <View style={s.top}>
         <View style={s.row}>
-          <Image source={{ uri: AVATARS[0] }} style={s.avatar} />
+          <Image source={{ uri: profile?.avatar_url || AVATARS[0] }} style={s.avatar} />
           <View>
             <Text style={s.hello}>Salut, {profile?.display_name || 'Bienvenue'}</Text>
             <Pressable style={s.row} onPress={() => navigation.navigate('Explorer')}>

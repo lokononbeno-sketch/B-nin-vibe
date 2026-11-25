@@ -61,6 +61,15 @@
       "ios",
       "android",
       "web"
+    ],
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Bénin Vibe utilise tes photos pour ajouter une affiche à tes événements et une photo à ton profil.",
+          "cameraPermission": "Bénin Vibe utilise ton appareil photo pour prendre une photo de profil ou une affiche."
+        }
+      ]
     ]
   }
 }

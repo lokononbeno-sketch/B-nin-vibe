@@ -11,7 +11,7 @@ import EventCard from '../components/EventCard';
 import { CategoryId } from '../lib/types';
 
 export default function HomeScreen({ navigation }: any) {
-  const { events } = useStore();
+  const { events, profile, refresh } = useStore();
   const [cat, setCat] = useState<CategoryId>('tout');
   const [refreshing, setRefreshing] = useState(false);
   const featured = useMemo(() => events.filter(e => e.featured), [events]);
@@ -25,9 +25,9 @@ export default function HomeScreen({ navigation }: any) {
         <View style={s.row}>
           <Image source={{ uri: AVATARS[0] }} style={s.avatar} />
           <View>
-            <Text style={s.hello}>Salut, Awa</Text>
+            <Text style={s.hello}>Salut, {profile?.display_name || 'Bienvenue'}</Text>
             <Pressable style={s.row} onPress={() => navigation.navigate('Explorer')}>
-              <Ionicons name="location" size={13} color={C.pink} /><Text style={s.loc}>Paris et alentours</Text><Ionicons name="chevron-down" size={13} color={C.muted} />
+              <Ionicons name="location" size={13} color={C.pink} /><Text style={s.loc}>{profile?.city || 'Bénin'} et alentours</Text><Ionicons name="chevron-down" size={13} color={C.muted} />
             </Pressable>
           </View>
         </View>
@@ -75,7 +75,7 @@ export default function HomeScreen({ navigation }: any) {
   );
   return <SafeAreaView style={s.safe} edges={['top']}><FlatList data={list} keyExtractor={e => e.id} ListHeaderComponent={Header}
     contentContainerStyle={{ paddingHorizontal: 18, paddingBottom: 110 }} showsVerticalScrollIndicator={false}
-    refreshControl={<RefreshControl refreshing={refreshing} tintColor={C.pink} onRefresh={() => { setRefreshing(true); setTimeout(() => setRefreshing(false), 700); }} />}
+    refreshControl={<RefreshControl refreshing={refreshing} tintColor={C.pink} onRefresh={async () => { setRefreshing(true); try { await refresh(); } finally { setRefreshing(false); } }} />}
     renderItem={({ item }) => <EventCard e={item} onPress={() => open(item.id)} />}
     ListEmptyComponent={<View style={s.empty}><Ionicons name="calendar-outline" size={44} color={C.faint} /><Text style={s.emptyT}>Aucun événement dans cette catégorie pour l'instant.</Text></View>} /></SafeAreaView>;
 }

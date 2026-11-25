@@ -8,6 +8,7 @@ interface Store {
   events: VEvent[]; rsvps: string[]; favorites: string[];
   fbConnected: boolean; waOptIn: boolean; notificationsEnabled: boolean;
   user: User | null; session: Session | null; profile: any; authLoading: boolean;
+  whatsappPhone: string; isAdmin: boolean;
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string, displayName: string) => Promise<boolean>;
   signOut: () => Promise<void>;
@@ -16,6 +17,7 @@ interface Store {
   addEvent: (e: NewEvent) => Promise<VEvent>;
   uploadImage: (uri: string, bucket: 'event-covers' | 'avatars') => Promise<string>;
   updateProfile: (values: Record<string, any>) => Promise<void>;
+  updateWhatsAppPhone: (value: string) => Promise<void>;
   setFbConnected: (v: boolean) => Promise<void>; setWaOptIn: (v: boolean) => Promise<void>;
   setNotificationsEnabled: (v: boolean) => Promise<void>;
 }
@@ -29,9 +31,10 @@ const toEvent = (row: any, organizer: any = null, participantCount = 0, isMine =
     time: d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}),
     lieu: row.venue, ville: row.city, price: Number(row.price || 0),
     priceLabel: Number(row.price || 0) === 0 ? 'Gratuit' : `${Number(row.price).toLocaleString('fr-FR')} FCFA`,
-    participants: participantCount, capacity: row.capacity, whatsappPhone: row.whatsapp_phone || '', facebookUrl: row.facebook_url || '', organizer: organizer?.display_name || 'Membre Bénin Vibe',
+    participants: participantCount, capacity: row.capacity, commissionPerTicket: Number(row.commission_per_ticket || 0),
+    whatsappPhone: row.whatsapp_phone || '', facebookUrl: row.facebook_url || '', organizer: organizer?.display_name || 'Membre Bénin Vibe',
     organizerAvatar: organizer?.avatar_url || '', description: row.description, tags: row.tags || [],
-    rating: 0, featured: new Date(row.starts_at).getTime() - Date.now() <= 7 * 24 * 60 * 60 * 1000, isMine, visibility: row.visibility === 'private' ? 'prive' : 'public',
+    rating: 0, featured: new Date(row.starts_at).getTime() - Date.now() <= 7 * 24 * 60 * 60 * 1000 && new Date(row.starts_at).getTime() >= Date.now(), isMine, visibility: row.visibility === 'private' ? 'prive' : 'public',
     ambiance: row.ambiance || [],
   };
 };
@@ -39,6 +42,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [session,setSession]=useState<Session|null>(null),[profile,setProfile]=useState<any>(null),[authLoading,setAuthLoading]=useState(true);
   const [events,setEvents]=useState<VEvent[]>([]),[rsvps,setRsvps]=useState<string[]>([]),[favorites,setFavorites]=useState<string[]>([]);
   const [fbConnected,setFbConnectedS]=useState(false),[waOptIn,setWaOptInS]=useState(true),[notificationsEnabled,setNotificationsEnabledS]=useState(true);
+  const [whatsappPhone,setWhatsappPhoneS]=useState(''),[isAdmin,setIsAdmin]=useState(false);
   const user=session?.user ?? null;
 
   const refresh = async () => {
@@ -47,22 +51,26 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     const {data:rows,error}=await supabase.from('events').select('*').eq('status','published').gte('starts_at',new Date().toISOString()).order('starts_at',{ascending:true});
     if(error) throw error;
     const ids=(rows||[]).map((r:any)=>r.organizer_id);
-    const {data:profiles}=ids.length ? await supabase.from('profiles').select('id,display_name,avatar_url').in('id',[...new Set(ids)]) : {data:[] as any[]};
-    const {data:participants}=await supabase.from('event_participants').select('event_id,ticket_quantity').eq('status','going');
-    const mapped=(rows||[]).map((r:any)=>toEvent(r,(profiles||[]).find((p:any)=>p.id===r.organizer_id),(participants||[]).filter((p:any)=>p.event_id===r.id).reduce((sum:number,p:any)=>sum+Number(p.ticket_quantity||1),0),r.organizer_id===current?.user?.id));
+    const [{data:profiles},{data:counts}] = await Promise.all([
+      ids.length ? supabase.from('profiles').select('id,display_name,avatar_url').in('id',[...new Set(ids)]) : Promise.resolve({data:[] as any[]}),
+      rows?.length ? supabase.rpc('get_public_event_ticket_counts',{event_ids:rows.map((r:any)=>r.id)}) : Promise.resolve({data:[] as any[]}),
+    ]);
+    const mapped=(rows||[]).map((r:any)=>toEvent(r,(profiles||[]).find((p:any)=>p.id===r.organizer_id),Number((counts||[]).find((x:any)=>x.event_id===r.id)?.ticket_count||0),r.organizer_id===current?.user?.id));
     setEvents(mapped);
     if(current?.user){
       const uid=current.user.id;
-      const [{data:mineRsvps,error:rErr},{data:mineFavs,error:fErr},{data:prof},{data:prefs}] = await Promise.all([
+      const [{data:mineRsvps,error:rErr},{data:mineFavs,error:fErr},{data:prof},{data:prefs},{data:adminFlag}] = await Promise.all([
         supabase.from('event_participants').select('event_id').eq('user_id',uid).eq('status','going'),
         supabase.from('event_favorites').select('event_id').eq('user_id',uid),
         supabase.from('profiles').select('*').eq('id',uid).maybeSingle(),
         supabase.from('user_preferences').select('*').eq('user_id',uid).maybeSingle(),
+        supabase.rpc('is_platform_admin'),
       ]);
       if(rErr) throw rErr; if(fErr) throw fErr;
       setRsvps((mineRsvps||[]).map((x:any)=>x.event_id));setFavorites((mineFavs||[]).map((x:any)=>x.event_id));setProfile(prof||null);
       setFbConnectedS(!!prefs?.facebook_connected);setWaOptInS(prefs?.whatsapp_status_opt_in!==false);setNotificationsEnabledS(prefs?.notifications_enabled!==false);
-    } else {setRsvps([]);setFavorites([]);setProfile(null);setFbConnectedS(false);setWaOptInS(true);setNotificationsEnabledS(true);}
+      setWhatsappPhoneS(prefs?.whatsapp_phone||'');setIsAdmin(adminFlag===true);
+    } else {setRsvps([]);setFavorites([]);setProfile(null);setFbConnectedS(false);setWaOptInS(true);setNotificationsEnabledS(true);setWhatsappPhoneS('');setIsAdmin(false);}
   };
   useEffect(()=>{
     let alive=true;
@@ -86,9 +94,9 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     const saved=toEvent(data,profile,0);saved.isMine=true;setEvents(prev=>[...prev,saved]);return saved;
   };
   const toggleRsvp=async(id:string,quantity=1)=>{
-    if(!user)throw new Error('Connecte-toi pour participer.');
+    if(!user)throw new Error('Connecte-toi pour réserver.');
     if(rsvps.includes(id)){const {error}=await supabase.from('event_participants').delete().eq('event_id',id).eq('user_id',user.id);if(error)throw error;await refresh();}
-    else{const {error}=await supabase.from('event_participants').upsert({event_id:id,user_id:user.id,status:'going',ticket_quantity:quantity},{onConflict:'event_id,user_id'});if(error)throw error;setRsvps(p=>[...p,id]);setEvents(p=>p.map(e=>e.id===id?{...e,participants:e.participants+quantity}:e));}
+    else{const {error}=await supabase.from('event_participants').upsert({event_id:id,user_id:user.id,status:'going',ticket_quantity:quantity,payment_status:'pending'},{onConflict:'event_id,user_id'});if(error)throw error;setRsvps(p=>[...p,id]);setEvents(p=>p.map(e=>e.id===id?{...e,participants:e.participants+quantity}:e));}
   };
   const toggleFav=async(id:string)=>{
     if(!user)throw new Error('Connecte-toi pour enregistrer un favori.');
@@ -109,14 +117,21 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     const {data,error}=await supabase.from('profiles').update(values).eq('id',user.id).select('*').single();
     if(error)throw error;setProfile(data);
   };
+  const updateWhatsAppPhone=async(value:string)=>{
+    if(!user)throw new Error('Connecte-toi pour modifier ton profil.');
+    const phone=value.trim();
+    if(phone && !/^\+?[0-9\s().-]{8,20}$/.test(phone))throw new Error('Numéro WhatsApp invalide. Exemple : +229 01 23 45 67 89.');
+    const {error}=await supabase.from('user_preferences').upsert({user_id:user.id,whatsapp_phone:phone||null},{onConflict:'user_id'});
+    if(error)throw error;setWhatsappPhoneS(phone);
+  };
   const savePref=async(values:Record<string,any>)=>{if(!user)return;const {error}=await supabase.from('user_preferences').upsert({user_id:user.id,...values},{onConflict:'user_id'});if(error)throw error;};
   const value=useMemo<Store>(()=>({
-    events,rsvps,favorites,fbConnected,waOptIn,notificationsEnabled,user,session,profile,authLoading,
-    signIn,signUp,signOut,refresh,toggleRsvp,toggleFav,addEvent,uploadImage,updateProfile,
+    events,rsvps,favorites,fbConnected,waOptIn,notificationsEnabled,user,session,profile,authLoading,whatsappPhone,isAdmin,
+    signIn,signUp,signOut,refresh,toggleRsvp,toggleFav,addEvent,uploadImage,updateProfile,updateWhatsAppPhone,
     setFbConnected:async(v)=>{await savePref({facebook_connected:v});setFbConnectedS(v);},
     setWaOptIn:async(v)=>{await savePref({whatsapp_status_opt_in:v});setWaOptInS(v);},
     setNotificationsEnabled:async(v)=>{await savePref({notifications_enabled:v});setNotificationsEnabledS(v);},
-  }),[events,rsvps,favorites,fbConnected,waOptIn,notificationsEnabled,user,session,profile,authLoading]);
+  }),[events,rsvps,favorites,fbConnected,waOptIn,notificationsEnabled,user,session,profile,authLoading,whatsappPhone,isAdmin]);
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
 export function useStore(){const s=useContext(Ctx);if(!s)throw new Error('StoreProvider manquant');return s;}

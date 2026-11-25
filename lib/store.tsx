@@ -12,7 +12,7 @@ interface Store {
   signUp: (email: string, password: string, displayName: string) => Promise<boolean>;
   signOut: () => Promise<void>;
   refresh: () => Promise<void>;
-  toggleRsvp: (id: string) => Promise<void>; toggleFav: (id: string) => Promise<void>;
+  toggleRsvp: (id: string, quantity?: number) => Promise<void>; toggleFav: (id: string) => Promise<void>;
   addEvent: (e: NewEvent) => Promise<VEvent>;
   uploadImage: (uri: string, bucket: 'event-covers' | 'avatars') => Promise<string>;
   updateProfile: (values: Record<string, any>) => Promise<void>;
@@ -48,8 +48,8 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     if(error) throw error;
     const ids=(rows||[]).map((r:any)=>r.organizer_id);
     const {data:profiles}=ids.length ? await supabase.from('profiles').select('id,display_name,avatar_url').in('id',[...new Set(ids)]) : {data:[] as any[]};
-    const {data:participants}=await supabase.from('event_participants').select('event_id').eq('status','going');
-    const mapped=(rows||[]).map((r:any)=>toEvent(r,(profiles||[]).find((p:any)=>p.id===r.organizer_id),(participants||[]).filter((p:any)=>p.event_id===r.id).length,r.organizer_id===current?.user?.id));
+    const {data:participants}=await supabase.from('event_participants').select('event_id,ticket_quantity').eq('status','going');
+    const mapped=(rows||[]).map((r:any)=>toEvent(r,(profiles||[]).find((p:any)=>p.id===r.organizer_id),(participants||[]).filter((p:any)=>p.event_id===r.id).reduce((sum:number,p:any)=>sum+Number(p.ticket_quantity||1),0),r.organizer_id===current?.user?.id));
     setEvents(mapped);
     if(current?.user){
       const uid=current.user.id;
@@ -85,10 +85,10 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     if(error)throw error;
     const saved=toEvent(data,profile,0);saved.isMine=true;setEvents(prev=>[...prev,saved]);return saved;
   };
-  const toggleRsvp=async(id:string)=>{
+  const toggleRsvp=async(id:string,quantity=1)=>{
     if(!user)throw new Error('Connecte-toi pour participer.');
     if(rsvps.includes(id)){const {error}=await supabase.from('event_participants').delete().eq('event_id',id).eq('user_id',user.id);if(error)throw error;setRsvps(p=>p.filter(x=>x!==id));setEvents(p=>p.map(e=>e.id===id?{...e,participants:Math.max(0,e.participants-1)}:e));}
-    else{const {error}=await supabase.from('event_participants').upsert({event_id:id,user_id:user.id,status:'going'},{onConflict:'event_id,user_id'});if(error)throw error;setRsvps(p=>[...p,id]);setEvents(p=>p.map(e=>e.id===id?{...e,participants:e.participants+1}:e));}
+    else{const {error}=await supabase.from('event_participants').upsert({event_id:id,user_id:user.id,status:'going',ticket_quantity:quantity},{onConflict:'event_id,user_id'});if(error)throw error;setRsvps(p=>[...p,id]);setEvents(p=>p.map(e=>e.id===id?{...e,participants:e.participants+quantity}:e));}
   };
   const toggleFav=async(id:string)=>{
     if(!user)throw new Error('Connecte-toi pour enregistrer un favori.');

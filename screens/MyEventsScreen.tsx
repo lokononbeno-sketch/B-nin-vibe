@@ -8,8 +8,9 @@ import {C,GRAD} from '../lib/theme';
 import EventCard from '../components/EventCard';
 type Tab='mine'|'going'|'fav';
 export default function MyEventsScreen({navigation}:any){
- const {events,rsvps,favorites}=useStore();const [tab,setTab]=useState<Tab>('going');
+ const {events,rsvps,favorites,user}=useStore();const [tab,setTab]=useState<Tab>('going');
  const mine=useMemo(()=>events.filter(e=>e.isMine),[events]),going=useMemo(()=>events.filter(e=>rsvps.includes(e.id)),[events,rsvps]),fav=useMemo(()=>events.filter(e=>favorites.includes(e.id)),[events,favorites]);
+ if(!user)return <SafeAreaView style={s.safe} edges={['top']}><View style={{flex:1,justifyContent:'center',padding:24}}><Text style={s.h}>Mes sorties</Text><Text style={s.sub}>Connecte-toi pour retrouver tes réservations, tes événements publiés et tes favoris.</Text><Pressable onPress={()=>navigation.getParent()?.navigate('Auth')}><LinearGradient colors={GRAD} style={s.emptyBtn}><Text style={s.emptyBtnT}>Se connecter / Créer un compte</Text></LinearGradient></Pressable></View></SafeAreaView>;
  const list=tab==='mine'?mine:tab==='going'?going:fav;const Tabs:[Tab,string,number][]=[['going','Je participe',going.length],['mine','Mes créations',mine.length],['fav','Favoris',fav.length]];
  return <SafeAreaView style={s.safe} edges={['top']}><View style={{paddingHorizontal:18,paddingTop:8}}>
  <Text style={s.h}>Mes sorties</Text><Text style={s.sub}>Tes inscriptions, tes événements et tes coups de cœur au même endroit.</Text>

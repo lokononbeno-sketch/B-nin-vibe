@@ -1,4 +1,5 @@
 import React from 'react';
+import { Alert } from 'react-native';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -9,11 +10,11 @@ import { useStore } from '../lib/store';
 import { C } from '../lib/theme';
 export function spotsLeft(e: VEvent) { return Math.max(0, e.capacity - e.participants); }
 export default function EventCard({ e, onPress, wide }: { e: VEvent; onPress: () => void; wide?: boolean }) {
- const { favorites, toggleFav, rsvps } = useStore(); const fav=favorites.includes(e.id), going=rsvps.includes(e.id)||e.isMine, left=spotsLeft(e), pct=Math.min(100,Math.round(e.participants/e.capacity*100));
+ const { favorites, toggleFav, rsvps, user } = useStore(); const fav=favorites.includes(e.id), going=rsvps.includes(e.id)||e.isMine, left=spotsLeft(e), pct=Math.min(100,Math.round(e.participants/e.capacity*100));
  return <Pressable onPress={onPress} style={({pressed})=>[s.card,wide&&s.wide,pressed&&{opacity:.92,transform:[{scale:.99}]}]}>
   <View style={s.imgWrap}><Image source={{uri:e.image}} style={s.img} contentFit="cover" transition={250}/><LinearGradient colors={['transparent','rgba(11,11,20,0.88)']} style={s.fade}/>
    <View style={[s.catBadge,{backgroundColor:catColor(e.category)}]}><Text style={s.catTxt}>{catLabel(e.category)}</Text></View>
-   <Pressable hitSlop={10} onPress={()=>toggleFav(e.id)} style={s.heart}><Ionicons name={fav?'heart':'heart-outline'} size={19} color={fav?'#F43F5E':'#fff'}/></Pressable>
+   <Pressable hitSlop={10} onPress={()=>{if(!user){Alert.alert('Connexion nécessaire','Connecte-toi pour ajouter cet événement à tes favoris.');return;}toggleFav(e.id).catch((err:any)=>Alert.alert('Favoris',err.message||'Action impossible.'));}} style={s.heart}><Ionicons name={fav?'heart':'heart-outline'} size={19} color={fav?'#F43F5E':'#fff'}/></Pressable>
    <View style={s.dateBadge}><Text style={s.dateTxt}>{e.day}</Text></View>
    {going&&<View style={s.goingBadge}><Ionicons name="checkmark-circle" size={13} color="#0B0B14"/><Text style={s.goingTxt}>{e.isMine?'Mon événement':"J'y vais"}</Text></View>}
    <View style={s.priceBadge}><Text style={s.priceTxt}>{e.priceLabel}</Text></View>

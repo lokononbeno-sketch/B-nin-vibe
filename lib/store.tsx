@@ -31,7 +31,7 @@ const toEvent = (row: any, organizer: any = null, participantCount = 0, isMine =
     priceLabel: Number(row.price || 0) === 0 ? 'Gratuit' : `${Number(row.price).toLocaleString('fr-FR')} FCFA`,
     participants: participantCount, capacity: row.capacity, organizer: organizer?.display_name || 'Membre Bénin Vibe',
     organizerAvatar: organizer?.avatar_url || '', description: row.description, tags: row.tags || [],
-    rating: 0, featured: false, isMine, visibility: row.visibility === 'private' ? 'prive' : 'public',
+    rating: 0, featured: new Date(row.starts_at).getTime() - Date.now() <= 7 * 24 * 60 * 60 * 1000, isMine, visibility: row.visibility === 'private' ? 'prive' : 'public',
     ambiance: row.ambiance || [],
   };
 };

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, Pressable } from 'react-native';
+import { View, StyleSheet, Pressable, ActivityIndicator } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useFonts } from 'expo-font';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -10,7 +10,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { StoreProvider } from './lib/store';
+import { StoreProvider, useStore } from './lib/store';
 import { C, GRAD } from './lib/theme';
 import HomeScreen from './screens/HomeScreen';
 import ExploreScreen from './screens/ExploreScreen';
@@ -19,6 +19,7 @@ import MyEventsScreen from './screens/MyEventsScreen';
 import ProfileScreen from './screens/ProfileScreen';
 import EventDetailScreen from './screens/EventDetailScreen';
 import CodeSourceScreen from './screens/CodeSourceScreen';
+import AuthScreen from './screens/AuthScreen';
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 function CreateTabButton({ onPress }: any) {
@@ -34,10 +35,16 @@ function Tabs() {
   </Tab.Navigator>;
 }
 const navTheme = { ...DarkTheme, colors: { ...DarkTheme.colors, background: C.bg, card: C.bg, border: C.line, primary: C.pink } };
+function AppContent() {
+  const {user,authLoading}=useStore();
+  if(authLoading)return <View style={{flex:1,backgroundColor:C.bg,alignItems:'center',justifyContent:'center'}}><ActivityIndicator size="large" color={C.pink}/></View>;
+  if(!user)return <AuthScreen/>;
+  return <NavigationContainer theme={navTheme}><StatusBar style="light" /><Stack.Navigator screenOptions={{ headerShown: false, contentStyle: { backgroundColor: C.bg } }}><Stack.Screen name="Tabs" component={Tabs} /><Stack.Screen name="EventDetail" component={EventDetailScreen} options={{ animation: 'slide_from_right' }} /><Stack.Screen name="CodeSource" component={CodeSourceScreen} options={{ animation: 'slide_from_right' }} /></Stack.Navigator></NavigationContainer>;
+}
 export default function App() {
   const [fontsLoaded] = useFonts({ ...Ionicons.font, ...FontAwesome.font });
   if (!fontsLoaded) return null;
-  return <GestureHandlerRootView style={{ flex: 1 }}><SafeAreaProvider><StoreProvider><NavigationContainer theme={navTheme}><StatusBar style="light" /><Stack.Navigator screenOptions={{ headerShown: false, contentStyle: { backgroundColor: C.bg } }}><Stack.Screen name="Tabs" component={Tabs} /><Stack.Screen name="EventDetail" component={EventDetailScreen} options={{ animation: 'slide_from_right' }} /><Stack.Screen name="CodeSource" component={CodeSourceScreen} options={{ animation: 'slide_from_right' }} /></Stack.Navigator></NavigationContainer></StoreProvider></SafeAreaProvider></GestureHandlerRootView>;
+  return <GestureHandlerRootView style={{ flex: 1 }}><SafeAreaProvider><StoreProvider><AppContent/></StoreProvider></SafeAreaProvider></GestureHandlerRootView>;
 }
 const styles = StyleSheet.create({
   tabBar: { position: 'absolute', left: 14, right: 14, bottom: 16, height: 68, borderRadius: 24, backgroundColor: 'rgba(22,22,38,0.97)', borderTopWidth: 1, borderWidth: 1, borderColor: C.line, paddingTop: 7, paddingBottom: 7, shadowColor: '#000', shadowOpacity: 0.45, shadowRadius: 18, shadowOffset: { width: 0, height: 8 }, elevation: 16 },

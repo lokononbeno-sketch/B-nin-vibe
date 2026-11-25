@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      commission_payments: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          note: string | null
+          organizer_id: string
+          paid_at: string
+          payment_method: string | null
+          recorded_by: string
+          reference: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          note?: string | null
+          organizer_id: string
+          paid_at?: string
+          payment_method?: string | null
+          recorded_by: string
+          reference?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          note?: string | null
+          organizer_id?: string
+          paid_at?: string
+          payment_method?: string | null
+          recorded_by?: string
+          reference?: string | null
+        }
+        Relationships: []
+      }
       event_favorites: {
         Row: {
           created_at: string
@@ -45,24 +81,39 @@ export type Database = {
       }
       event_participants: {
         Row: {
+          commission_per_ticket: number
           created_at: string
           event_id: string
           id: string
+          payment_confirmed_at: string | null
+          payment_confirmed_by: string | null
+          payment_status: string
           status: string
+          ticket_quantity: number
           user_id: string
         }
         Insert: {
+          commission_per_ticket?: number
           created_at?: string
           event_id: string
           id?: string
+          payment_confirmed_at?: string | null
+          payment_confirmed_by?: string | null
+          payment_status?: string
           status?: string
+          ticket_quantity?: number
           user_id: string
         }
         Update: {
+          commission_per_ticket?: number
           created_at?: string
           event_id?: string
           id?: string
+          payment_confirmed_at?: string | null
+          payment_confirmed_by?: string | null
+          payment_status?: string
           status?: string
+          ticket_quantity?: number
           user_id?: string
         }
         Relationships: [
@@ -119,11 +170,13 @@ export type Database = {
           capacity: number
           category: string
           city: string
+          commission_per_ticket: number
           country: string
           created_at: string
           currency: string
           description: string
           ends_at: string | null
+          facebook_url: string | null
           id: string
           image_url: string | null
           organizer_id: string
@@ -135,17 +188,20 @@ export type Database = {
           updated_at: string
           venue: string
           visibility: string
+          whatsapp_phone: string | null
         }
         Insert: {
           ambiance?: string[]
           capacity?: number
           category: string
           city: string
+          commission_per_ticket?: number
           country?: string
           created_at?: string
           currency?: string
           description: string
           ends_at?: string | null
+          facebook_url?: string | null
           id?: string
           image_url?: string | null
           organizer_id: string
@@ -157,17 +213,20 @@ export type Database = {
           updated_at?: string
           venue: string
           visibility?: string
+          whatsapp_phone?: string | null
         }
         Update: {
           ambiance?: string[]
           capacity?: number
           category?: string
           city?: string
+          commission_per_ticket?: number
           country?: string
           created_at?: string
           currency?: string
           description?: string
           ends_at?: string | null
+          facebook_url?: string | null
           id?: string
           image_url?: string | null
           organizer_id?: string
@@ -179,6 +238,22 @@ export type Database = {
           updated_at?: string
           venue?: string
           visibility?: string
+          whatsapp_phone?: string | null
+        }
+        Relationships: []
+      }
+      platform_admins: {
+        Row: {
+          created_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -191,10 +266,12 @@ export type Database = {
           cover_url: string | null
           created_at: string
           display_name: string
+          facebook_url: string | null
           id: string
           interests: string[]
           updated_at: string
           username: string | null
+          whatsapp_numbers: string[]
         }
         Insert: {
           avatar_url?: string | null
@@ -204,10 +281,12 @@ export type Database = {
           cover_url?: string | null
           created_at?: string
           display_name?: string
+          facebook_url?: string | null
           id: string
           interests?: string[]
           updated_at?: string
           username?: string | null
+          whatsapp_numbers?: string[]
         }
         Update: {
           avatar_url?: string | null
@@ -217,10 +296,12 @@ export type Database = {
           cover_url?: string | null
           created_at?: string
           display_name?: string
+          facebook_url?: string | null
           id?: string
           interests?: string[]
           updated_at?: string
           username?: string | null
+          whatsapp_numbers?: string[]
         }
         Relationships: []
       }
@@ -232,6 +313,7 @@ export type Database = {
           search_radius_km: number
           updated_at: string
           user_id: string
+          whatsapp_phone: string | null
           whatsapp_status_opt_in: boolean
         }
         Insert: {
@@ -241,6 +323,7 @@ export type Database = {
           search_radius_km?: number
           updated_at?: string
           user_id: string
+          whatsapp_phone?: string | null
           whatsapp_status_opt_in?: boolean
         }
         Update: {
@@ -250,6 +333,7 @@ export type Database = {
           search_radius_km?: number
           updated_at?: string
           user_id?: string
+          whatsapp_phone?: string | null
           whatsapp_status_opt_in?: boolean
         }
         Relationships: []
@@ -259,7 +343,22 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      cancel_event_reservation: {
+        Args: { p_event_id: string }
+        Returns: undefined
+      }
+      get_public_event_ticket_counts: {
+        Args: { event_ids: string[] }
+        Returns: {
+          event_id: string
+          ticket_count: number
+        }[]
+      }
+      is_platform_admin: { Args: never; Returns: boolean }
+      reserve_event_tickets: {
+        Args: { p_event_id: string; p_quantity: number }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never

@@ -25,7 +25,7 @@ export default function CreateScreen({navigation}:any){
  if(title.trim().length<5)errs.push("Donne un titre d'au moins 5 caractères.");if(!cover.uri)errs.push('Ajoute une affiche depuis ton téléphone.');
  if(lieu.trim().length<3)errs.push('Indique le lieu de rendez-vous.');
  if(desc.trim().length<20)errs.push('Décris ton événement en quelques phrases (20 caractères min).');
- if(!gratuit&&(isNaN(Number(prix))||Number(prix)<=0))errs.push('Le prix doit être un montant positif en FCFA.');if(whatsappPhone.trim()&&!/^\+?[0-9\s().-]{8,20}$/.test(whatsappPhone.trim()))errs.push('Vérifie le numéro WhatsApp (ex. +229 01 23 45 67 89).');if(facebookUrl.trim()&&!/^https?:\/\/(www\.)?facebook\.com\//i.test(facebookUrl.trim()))errs.push('Ajoute un lien Facebook valide commençant par https://facebook.com/.');
+ if(!gratuit&&(isNaN(Number(prix))||Number(prix)<=0))errs.push('Le prix doit être un montant positif en FCFA.');if(!gratuit&&!whatsappPhone.trim())errs.push('Ajoute un numéro WhatsApp pour que les participants puissent te contacter au sujet du paiement.');if(whatsappPhone.trim()&&!/^\+?[0-9\s().-]{8,20}$/.test(whatsappPhone.trim()))errs.push('Vérifie le numéro WhatsApp (ex. +229 01 23 45 67 89).');if(facebookUrl.trim()&&!/^https?:\/\/(www\.)?facebook\.com\//i.test(facebookUrl.trim()))errs.push('Ajoute un lien Facebook valide commençant par https://facebook.com/.');
  setErrors(errs);if(errs.length){Alert.alert('Il manque des infos',errs.join('\n'));return;}
  try{let imageUrl=cover.uri;if(imageUrl.startsWith('file://')||imageUrl.startsWith('content://'))imageUrl=await uploadImage(imageUrl,'event-covers');
  const starts=new Date();starts.setDate(starts.getDate()+dayIdx+1);const parts=time.split('h');starts.setHours(Number(parts[0]),Number(parts[1]||0),0,0);

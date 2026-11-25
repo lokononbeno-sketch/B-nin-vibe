@@ -20,7 +20,7 @@ export const COVERS: { id: string; label: string; uri: string }[] = [
   { id: 'c7', label: 'Rooftop', uri: 'https://images.unsplash.com/photo-1470337458703-46ad1756a187?w=900&q=80' },
   { id: 'c8', label: 'Festival', uri: 'https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?w=900&q=80' },
 ];
-export const VILLES = ['Toutes', 'Paris', 'Lyon', 'Dakar', 'Abidjan', 'Bruxelles', 'Montréal', 'Genève'];
+export const VILLES = ['Toutes', 'Calavi', 'Cotonou', 'Porto-Novo', 'Ouidah', 'Parakou', 'Abomey-Calavi', 'Bohicon'];
 export const AVATARS = [
   'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&q=80',
   'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&q=80',

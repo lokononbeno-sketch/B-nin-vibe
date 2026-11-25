@@ -29,7 +29,7 @@ const toEvent = (row: any, organizer: any = null, participantCount = 0, isMine =
     time: d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}),
     lieu: row.venue, ville: row.city, price: Number(row.price || 0),
     priceLabel: Number(row.price || 0) === 0 ? 'Gratuit' : `${Number(row.price).toLocaleString('fr-FR')} FCFA`,
-    participants: participantCount, capacity: row.capacity, organizer: organizer?.display_name || 'Membre Bénin Vibe',
+    participants: participantCount, capacity: row.capacity, whatsappPhone: row.whatsapp_phone || '', facebookUrl: row.facebook_url || '', organizer: organizer?.display_name || 'Membre Bénin Vibe',
     organizerAvatar: organizer?.avatar_url || '', description: row.description, tags: row.tags || [],
     rating: 0, featured: new Date(row.starts_at).getTime() - Date.now() <= 7 * 24 * 60 * 60 * 1000, isMine, visibility: row.visibility === 'private' ? 'prive' : 'public',
     ambiance: row.ambiance || [],
@@ -80,7 +80,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const signOut=async()=>{const {error}=await supabase.auth.signOut();if(error)throw error;};
   const addEvent=async(e:NewEvent)=>{
     if(!user) throw new Error('Connecte-toi pour publier un événement.');
-    const payload={organizer_id:user.id,title:e.title,category:e.category,image_url:e.image,starts_at:e.startsAt,venue:e.lieu,city:e.ville,country:'Bénin',price:e.price,currency:'XOF',capacity:e.capacity,description:e.description,tags:e.tags,ambiance:e.ambiance,visibility:e.visibility==='prive'?'private':'public',status:'published'};
+    const payload={organizer_id:user.id,title:e.title,category:e.category,image_url:e.image,starts_at:e.startsAt,venue:e.lieu,city:e.ville,country:'Bénin',price:e.price,currency:'XOF',capacity:e.capacity,whatsapp_phone:e.whatsappPhone||null,facebook_url:e.facebookUrl||null,description:e.description,tags:e.tags,ambiance:e.ambiance,visibility:e.visibility==='prive'?'private':'public',status:'published'};
     const {data,error}=await supabase.from('events').insert(payload).select('*').single();
     if(error)throw error;
     const saved=toEvent(data,profile,0);saved.isMine=true;setEvents(prev=>[...prev,saved]);return saved;

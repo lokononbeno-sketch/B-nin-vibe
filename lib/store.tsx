@@ -5,7 +5,7 @@ import { supabase } from './supabase';
 
 type NewEvent = VEvent & { startsAt: string };
 interface Store {
-  events: VEvent[]; rsvps: string[]; favorites: string[];
+  events: VEvent[]; rsvps: string[]; paidRsvps: string[]; favorites: string[];
   fbConnected: boolean; waOptIn: boolean; notificationsEnabled: boolean;
   user: User | null; session: Session | null; profile: any; authLoading: boolean;
   whatsappPhone: string; isAdmin: boolean;
@@ -40,7 +40,7 @@ const toEvent = (row: any, organizer: any = null, participantCount = 0, isMine =
 };
 export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [session,setSession]=useState<Session|null>(null),[profile,setProfile]=useState<any>(null),[authLoading,setAuthLoading]=useState(true);
-  const [events,setEvents]=useState<VEvent[]>([]),[rsvps,setRsvps]=useState<string[]>([]),[favorites,setFavorites]=useState<string[]>([]);
+  const [events,setEvents]=useState<VEvent[]>([]),[rsvps,setRsvps]=useState<string[]>([]),[paidRsvps,setPaidRsvps]=useState<string[]>([]),[favorites,setFavorites]=useState<string[]>([]);
   const [fbConnected,setFbConnectedS]=useState(false),[waOptIn,setWaOptInS]=useState(true),[notificationsEnabled,setNotificationsEnabledS]=useState(true);
   const [whatsappPhone,setWhatsappPhoneS]=useState(''),[isAdmin,setIsAdmin]=useState(false);
   const user=session?.user ?? null;
@@ -60,17 +60,17 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     if(current?.user){
       const uid=current.user.id;
       const [{data:mineRsvps,error:rErr},{data:mineFavs,error:fErr},{data:prof},{data:prefs},{data:adminFlag}] = await Promise.all([
-        supabase.from('event_participants').select('event_id').eq('user_id',uid).eq('status','going'),
+        supabase.from('event_participants').select('event_id,payment_status').eq('user_id',uid).eq('status','going'),
         supabase.from('event_favorites').select('event_id').eq('user_id',uid),
         supabase.from('profiles').select('*').eq('id',uid).maybeSingle(),
         supabase.from('user_preferences').select('*').eq('user_id',uid).maybeSingle(),
         supabase.rpc('is_platform_admin'),
       ]);
       if(rErr) throw rErr; if(fErr) throw fErr;
-      setRsvps((mineRsvps||[]).map((x:any)=>x.event_id));setFavorites((mineFavs||[]).map((x:any)=>x.event_id));setProfile(prof||null);
+      setRsvps((mineRsvps||[]).map((x:any)=>x.event_id));setPaidRsvps((mineRsvps||[]).filter((x:any)=>x.payment_status==='paid').map((x:any)=>x.event_id));setFavorites((mineFavs||[]).map((x:any)=>x.event_id));setProfile(prof||null);
       setFbConnectedS(!!prefs?.facebook_connected);setWaOptInS(prefs?.whatsapp_status_opt_in!==false);setNotificationsEnabledS(prefs?.notifications_enabled!==false);
       setWhatsappPhoneS(prefs?.whatsapp_phone||'');setIsAdmin(adminFlag===true);
-    } else {setRsvps([]);setFavorites([]);setProfile(null);setFbConnectedS(false);setWaOptInS(true);setNotificationsEnabledS(true);setWhatsappPhoneS('');setIsAdmin(false);}
+    } else {setRsvps([]);setPaidRsvps([]);setFavorites([]);setProfile(null);setFbConnectedS(false);setWaOptInS(true);setNotificationsEnabledS(true);setWhatsappPhoneS('');setIsAdmin(false);}
   };
   useEffect(()=>{
     let alive=true;
@@ -126,12 +126,12 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   };
   const savePref=async(values:Record<string,any>)=>{if(!user)return;const {error}=await supabase.from('user_preferences').upsert({user_id:user.id,...values},{onConflict:'user_id'});if(error)throw error;};
   const value=useMemo<Store>(()=>({
-    events,rsvps,favorites,fbConnected,waOptIn,notificationsEnabled,user,session,profile,authLoading,whatsappPhone,isAdmin,
+    events,rsvps,paidRsvps,favorites,fbConnected,waOptIn,notificationsEnabled,user,session,profile,authLoading,whatsappPhone,isAdmin,
     signIn,signUp,signOut,refresh,toggleRsvp,toggleFav,addEvent,uploadImage,updateProfile,updateWhatsAppPhone,
     setFbConnected:async(v)=>{await savePref({facebook_connected:v});setFbConnectedS(v);},
     setWaOptIn:async(v)=>{await savePref({whatsapp_status_opt_in:v});setWaOptInS(v);},
     setNotificationsEnabled:async(v)=>{await savePref({notifications_enabled:v});setNotificationsEnabledS(v);},
-  }),[events,rsvps,favorites,fbConnected,waOptIn,notificationsEnabled,user,session,profile,authLoading,whatsappPhone,isAdmin]);
+  }),[events,rsvps,paidRsvps,favorites,fbConnected,waOptIn,notificationsEnabled,user,session,profile,authLoading,whatsappPhone,isAdmin]);
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
 export function useStore(){const s=useContext(Ctx);if(!s)throw new Error('StoreProvider manquant');return s;}

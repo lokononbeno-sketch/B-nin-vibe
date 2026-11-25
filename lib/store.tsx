@@ -22,7 +22,7 @@ interface Store {
 }
 const Ctx = createContext<Store | null>(null);
 const frenchDate = (value: string) => new Date(value).toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
-const toEvent = (row: any, organizer: any = null, participantCount = 0): VEvent => {
+const toEvent = (row: any, organizer: any = null, participantCount = 0, isMine = false): VEvent => {
   const d = new Date(row.starts_at);
   return {
     id: row.id, title: row.title, category: row.category, image: row.image_url || '',
@@ -32,7 +32,7 @@ const toEvent = (row: any, organizer: any = null, participantCount = 0): VEvent 
     priceLabel: Number(row.price || 0) === 0 ? 'Gratuit' : `${Number(row.price).toLocaleString('fr-FR')} FCFA`,
     participants: participantCount, capacity: row.capacity, organizer: organizer?.display_name || 'Membre Bénin Vibe',
     organizerAvatar: organizer?.avatar_url || '', description: row.description, tags: row.tags || [],
-    rating: 0, featured: false, isMine: false, visibility: row.visibility === 'private' ? 'prive' : 'public',
+    rating: 0, featured: false, isMine, visibility: row.visibility === 'private' ? 'prive' : 'public',
     ambiance: row.ambiance || [],
   };
 };
@@ -50,7 +50,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     const ids=(rows||[]).map((r:any)=>r.organizer_id);
     const {data:profiles}=ids.length ? await supabase.from('profiles').select('id,display_name,avatar_url').in('id',[...new Set(ids)]) : {data:[] as any[]};
     const {data:participants}=await supabase.from('event_participants').select('event_id').eq('status','going');
-    const mapped=(rows||[]).map((r:any)=>toEvent(r,(profiles||[]).find((p:any)=>p.id===r.organizer_id),(participants||[]).filter((p:any)=>p.event_id===r.id).length));
+    const mapped=(rows||[]).map((r:any)=>toEvent(r,(profiles||[]).find((p:any)=>p.id===r.organizer_id),(participants||[]).filter((p:any)=>p.event_id===r.id).length,r.organizer_id===current?.user?.id));
     setEvents(mapped);
     if(current?.user){
       const uid=current.user.id;

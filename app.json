@@ -40,7 +40,8 @@
             "DEFAULT"
           ]
         }
-      ]
+      ],
+      "package": "com.beninvibe.app"
     },
     "web": {
       "favicon": "./assets/favicon.png"

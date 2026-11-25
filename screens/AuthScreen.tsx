@@ -5,7 +5,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import {useStore} from '../lib/store';
 import {C,GRAD} from '../lib/theme';
 
-export default function AuthScreen(){
+export default function AuthScreen({navigation}:any){
  const {signIn,signUp}=useStore();
  const [mode,setMode]=useState<'login'|'signup'>('signup');
  const [name,setName]=useState(''),[email,setEmail]=useState(''),[password,setPassword]=useState('');
@@ -16,8 +16,8 @@ export default function AuthScreen(){
   if(mode==='signup'&&name.trim().length<2){Alert.alert('Nom requis','Indique le nom qui sera affiché sur ton profil.');return;}
   setBusy(true);
   try{
-   if(mode==='login'){await signIn(email,password);}
-   else{const hasSession=await signUp(email,password,name);Alert.alert('Compte créé',hasSession?'Ton compte Bénin Vibe est prêt.':'Vérifie ta boîte e-mail pour confirmer ton adresse, puis connecte-toi.');}
+   if(mode==='login'){await signIn(email,password);navigation.goBack();}
+   else{const hasSession=await signUp(email,password,name);Alert.alert('Compte créé',hasSession?'Ton compte Bénin Vibe est prêt.':'Vérifie ta boîte e-mail pour confirmer ton adresse, puis connecte-toi.');if(hasSession)navigation.goBack();}
   }catch(e:any){Alert.alert('Impossible de continuer',e.message||'Une erreur est survenue.');}
   finally{setBusy(false);}
  };

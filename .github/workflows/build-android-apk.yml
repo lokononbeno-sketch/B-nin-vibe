@@ -8,6 +8,9 @@ on:
     paths:
       - "app.json"
       - "eas.json"
+      - "screens/**"
+      - "lib/**"
+      - "supabase/migrations/**"
       - ".github/workflows/build-android-apk.yml"
 
 permissions:

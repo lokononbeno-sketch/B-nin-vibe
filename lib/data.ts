@@ -27,6 +27,7 @@ export const CATEGORIES: Category[] = [
   { id: 'mode', label: 'Mode & beauté', icon: 'shirt', color: '#F0ABFC', grad: ['#A21CAF', '#BE185D'] },
   { id: 'excursion', label: 'Excursions & tourisme', icon: 'map', color: '#6EE7B7', grad: ['#047857', '#0369A1'] },
   { id: 'lancement', label: 'Lancements & promotions', icon: 'rocket', color: '#FCA5A5', grad: ['#B91C1C', '#C2410C'] },
+  { id: 'autres', label: 'Autres événements', icon: 'ellipsis-horizontal-circle', color: '#CBD5E1', grad: ['#475569', '#64748B'] },
 ];
 export const COVERS: { id: string; label: string; uri: string }[] = [
   { id: 'c1', label: 'Neon Party', uri: 'https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=900&q=80' },

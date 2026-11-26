@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, Pressable, ActivityIndicator } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, Pressable, ActivityIndicator } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useFonts } from 'expo-font';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -25,6 +25,28 @@ import MessagesScreen from './screens/MessagesScreen';
 import NotificationsScreen from './screens/NotificationsScreen';
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
+
+// Filet de sécurité : au lieu d'une page blanche, affiche l'erreur à l'écran.
+class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { error: any }> {
+  state = { error: null as any };
+  static getDerivedStateFromError(error: any) { return { error }; }
+  componentDidCatch(error: any, info: any) { console.error('Bénin Vibe crash:', error, info?.componentStack); }
+  onWinError = (e: any) => { this.setState({ error: e?.error || new Error(e?.message || 'Erreur inconnue') }); };
+  componentDidMount() { const w: any = typeof window !== 'undefined' ? window : null; if (w && w.addEventListener) w.addEventListener('error', this.onWinError); }
+  componentWillUnmount() { const w: any = typeof window !== 'undefined' ? window : null; if (w && w.removeEventListener) w.removeEventListener('error', this.onWinError); }
+  render() {
+    const err = this.state.error;
+    if (!err) return this.props.children;
+    const msg = String(err?.message || err);
+    const stack = String(err?.stack || '').split('\n').slice(0, 8).join('\n');
+    return <ScrollView style={{ flex: 1, backgroundColor: '#0B0B14' }} contentContainerStyle={{ padding: 24, paddingTop: 60 }}>
+      <Text selectable style={{ color: '#fff', fontSize: 20, fontWeight: '900' }}>Oups, Bénin Vibe a rencontré une erreur</Text>
+      <Text selectable style={{ color: '#FF6B9D', fontSize: 15, marginTop: 16, fontWeight: '700' }}>{msg}</Text>
+      <Text selectable style={{ color: '#9CA3AF', fontSize: 12, marginTop: 16 }}>{stack}</Text>
+    </ScrollView>;
+  }
+}
+
 function CreateTabButton({ onPress }: any) {
   return <Pressable onPress={onPress} style={styles.centerWrap}><LinearGradient colors={GRAD} style={styles.centerBtn}><Ionicons name="add" size={29} color="#fff" /></LinearGradient></Pressable>;
 }
@@ -51,10 +73,13 @@ function AppContent() {
     <Stack.Screen name="Notifications" component={NotificationsScreen} options={{ animation: 'slide_from_right' }} />
   </Stack.Navigator></NavigationContainer>;
 }
-export default function App() {
+function Root() {
   const [fontsLoaded, fontError] = useFonts({ ...Ionicons.font, ...FontAwesome.font });
   if (!fontsLoaded && !fontError) return <View style={{ flex: 1, backgroundColor: C.bg, alignItems: 'center', justifyContent: 'center' }}><ActivityIndicator size="large" color={C.pink} /></View>;
   return <GestureHandlerRootView style={{ flex: 1 }}><SafeAreaProvider><StoreProvider><AppContent/></StoreProvider></SafeAreaProvider></GestureHandlerRootView>;
+}
+export default function App() {
+  return <ErrorBoundary><Root /></ErrorBoundary>;
 }
 const styles = StyleSheet.create({
   tabBar: { position: 'absolute', left: 14, right: 14, bottom: 16, height: 68, borderRadius: 24, backgroundColor: 'rgba(22,22,38,0.97)', borderTopWidth: 1, borderWidth: 1, borderColor: C.line, paddingTop: 7, paddingBottom: 7, shadowColor: '#000', shadowOpacity: 0.45, shadowRadius: 18, shadowOffset: { width: 0, height: 8 }, elevation: 16 },

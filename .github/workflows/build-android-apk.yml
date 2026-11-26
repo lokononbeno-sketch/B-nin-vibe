@@ -38,3 +38,18 @@ jobs:
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
         run: eas build --platform android --profile preview --non-interactive --wait
+
+      - name: Download generated APK
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        run: |
+          mkdir -p dist
+          eas build:download --latest --platform android --output ./dist/benin-vibe.apk
+
+      - name: Publish APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: benin-vibe-android-apk
+          path: dist/benin-vibe.apk
+          if-no-files-found: error
+          retention-days: 14

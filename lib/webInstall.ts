@@ -1,9 +1,24 @@
 import { Linking, Platform } from 'react-native';
 
-// Sur le web, le bouton "Installer Bénin Vibe" (Profil) ouvrait la page de build Expo (EAS).
-// Ici on le remplace par l'installation de l'application web (PWA) : on utilise l'invite de Chrome
-// si elle est disponible, sinon on affiche les étapes à suivre.
-if (Platform.OS === 'web' && typeof window !== 'undefined') {
+// Installation de l'application web (PWA) sur le téléphone, sans Play Store.
+// - ajoute le manifest (public/manifest.json) et enregistre le service worker (public/sw.js)
+// - le bouton "Installer Bénin Vibe" (Profil) lance l'installation au lieu d'ouvrir la page de build Expo.
+if (Platform.OS === 'web' && typeof window !== 'undefined' && typeof document !== 'undefined') {
+  const head = document.head;
+  if (head && !document.querySelector('link[rel="manifest"]')) {
+    const link = document.createElement('link');
+    link.rel = 'manifest';
+    link.href = '/B-nin-vibe/manifest.json';
+    head.appendChild(link);
+    const theme = document.createElement('meta');
+    theme.name = 'theme-color';
+    theme.content = '#0B0B14';
+    head.appendChild(theme);
+  }
+  if ('serviceWorker' in navigator) {
+    const register = () => navigator.serviceWorker.register('/B-nin-vibe/sw.js', { scope: '/B-nin-vibe/' }).catch(() => {});
+    if (document.readyState === 'complete') register(); else window.addEventListener('load', register);
+  }
   let deferred: any = null;
   window.addEventListener('beforeinstallprompt', (e: any) => { e.preventDefault(); deferred = e; });
   window.addEventListener('appinstalled', () => { deferred = null; });
@@ -16,7 +31,7 @@ if (Platform.OS === 'web' && typeof window !== 'undefined') {
         deferred = null;
         return;
       }
-      window.alert("Pour installer Bénin Vibe sur ton téléphone :\n\n1. Touche les 3 points ⋮ en haut à droite de Chrome.\n2. Touche « Ajouter à l'écran d'accueil » (ou « Installer l'application »).\n3. Touche « Installer » ou « Ajouter ».");
+      window.alert("Pour installer Bénin Vibe sur ton téléphone :\n\n1. Touche les 3 points ⋮ en haut à droite de Chrome.\n2. Touche « Installer l'application ».\n3. Touche « Installer ».\n\n(Si tu vois seulement « Ajouter à l'écran d'accueil », recharge la page une fois puis réessaie.)");
       return;
     }
     return original(url);

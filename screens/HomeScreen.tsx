@@ -47,7 +47,7 @@ export default function HomeScreen({ navigation }: any) {
             <LinearGradient colors={cat === item.id ? item.grad : ['#262640', '#262640']} style={s.catCircle}>
               <Ionicons name={item.icon as any} size={24} color="#fff" />
             </LinearGradient>
-            <Text style={[s.catLabel, cat === item.id && { color: '#fff' }]} numberOfLines={1}>{({ tout: 'Tout', concert: 'Concerts', anniversaire: 'Anniv.', piquenique: 'Pique-nique', gala: 'Galas', miss: 'Miss', chill: 'Chill', sortie: 'Sorties' } as any)[item.id]}</Text>
+            <Text style={[s.catLabel, cat === item.id && { color: '#fff' }]} numberOfLines={1}>{item.label}</Text>
           </Pressable>
         )} />
       <Pressable onPress={() => navigation.navigate('Creer')}>

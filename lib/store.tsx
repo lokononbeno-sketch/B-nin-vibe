@@ -15,7 +15,7 @@ interface Store {
   refresh: () => Promise<void>;
   toggleRsvp: (id: string, quantity?: number) => Promise<void>; toggleFav: (id: string) => Promise<void>;
   addEvent: (e: NewEvent) => Promise<VEvent>;
-  uploadImage: (uri: string, bucket: 'event-covers' | 'avatars') => Promise<string>;
+  uploadImage: (uri: string, bucket: 'event-covers' | 'avatars', mimeType?: string | null) => Promise<string>;
   updateProfile: (values: Record<string, any>) => Promise<void>;
   updateWhatsAppPhone: (value: string) => Promise<void>;
   setFbConnected: (v: boolean) => Promise<void>; setWaOptIn: (v: boolean) => Promise<void>;
@@ -103,12 +103,14 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     if(favorites.includes(id)){const {error}=await supabase.from('event_favorites').delete().eq('event_id',id).eq('user_id',user.id);if(error)throw error;setFavorites(p=>p.filter(x=>x!==id));}
     else{const {error}=await supabase.from('event_favorites').upsert({event_id:id,user_id:user.id},{onConflict:'event_id,user_id'});if(error)throw error;setFavorites(p=>[...p,id]);}
   };
-  const uploadImage=async(uri:string,bucket:'event-covers'|'avatars')=>{
+  const uploadImage=async(uri:string,bucket:'event-covers'|'avatars',mimeType?:string|null)=>{
     if(!user)throw new Error('Connecte-toi pour envoyer une image.');
-    const response=await fetch(uri);const blob=await response.blob();
-    const ext=(uri.split('?')[0].split('.').pop()||'jpg').toLowerCase();
-    const contentType=blob.type||'image/jpeg';const path=`${user.id}/${Date.now()}.${['png','webp'].includes(ext)?ext:'jpg'}`;
-    const {error}=await supabase.storage.from(bucket).upload(path,blob,{contentType,upsert:false,cacheControl:'3600'});
+    const response=await fetch(uri);if(!response.ok)throw new Error('Impossible de lire cette image depuis le téléphone.');
+    const bytes=new Uint8Array(await response.arrayBuffer());if(!bytes.length)throw new Error('Le fichier image est vide.');
+    const contentType=mimeType&&mimeType.startsWith('image/')?mimeType:'image/jpeg';
+    const ext=contentType==='image/png'?'png':contentType==='image/webp'?'webp':contentType==='image/heic'?'heic':'jpg';
+    const path=`${user.id}/${Date.now()}.${ext}`;
+    const {error}=await supabase.storage.from(bucket).upload(path,bytes,{contentType,upsert:false,cacheControl:'3600'});
     if(error)throw error;
     return supabase.storage.from(bucket).getPublicUrl(path).data.publicUrl;
   };

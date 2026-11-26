@@ -2,7 +2,7 @@
   "expo": {
     "name": "Bénin Vibe",
     "slug": "benin-vibe-2004",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
@@ -41,7 +41,8 @@
           ]
         }
       ],
-      "package": "com.beninvibe.app"
+      "package": "com.beninvibe.app",
+      "versionCode": 2
     },
     "web": {
       "favicon": "./assets/favicon.png"

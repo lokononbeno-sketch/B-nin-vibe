@@ -5,7 +5,7 @@ import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useStore } from '../lib/store';
-import { CATEGORIES, AVATARS } from '../lib/data';
+import { CATEGORIES } from '../lib/data';
 import { C, GRAD } from '../lib/theme';
 import EventCard from '../components/EventCard';
 import { CategoryId } from '../lib/types';
@@ -23,7 +23,7 @@ export default function HomeScreen({ navigation }: any) {
     <View>
       <View style={s.top}>
         <View style={s.row}>
-          <Image source={{ uri: profile?.avatar_url || AVATARS[0] }} style={s.avatar} />
+          {profile?.avatar_url ? <Image source={{ uri: profile.avatar_url }} style={s.avatar} /> : <View style={[s.avatar,{alignItems:"center",justifyContent:"center",backgroundColor:"#29243D"}]}><Ionicons name="person" size={22} color={C.muted}/></View> }
           <View>
             <Text style={s.hello}>Salut, {profile?.display_name || 'Bienvenue'}</Text>
             <Pressable style={s.row} onPress={() => navigation.navigate('Explorer')}>

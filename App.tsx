@@ -21,6 +21,8 @@ import EventDetailScreen from './screens/EventDetailScreen';
 import AuthScreen from './screens/AuthScreen';
 import OrganizerDashboardScreen from './screens/OrganizerDashboardScreen';
 import AdminDashboardScreen from './screens/AdminDashboardScreen';
+import MessagesScreen from './screens/MessagesScreen';
+import NotificationsScreen from './screens/NotificationsScreen';
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 function CreateTabButton({ onPress }: any) {
@@ -45,6 +47,8 @@ function AppContent() {
     <Stack.Screen name="EventDetail" component={EventDetailScreen} options={{ animation: 'slide_from_right' }} />
     <Stack.Screen name="OrganizerDashboard" component={OrganizerDashboardScreen} options={{ animation: 'slide_from_right' }} />
     <Stack.Screen name="AdminDashboard" component={AdminDashboardScreen} options={{ animation: 'slide_from_right' }} />
+    <Stack.Screen name="Messages" component={MessagesScreen} options={{ animation: 'slide_from_right' }} />
+    <Stack.Screen name="Notifications" component={NotificationsScreen} options={{ animation: 'slide_from_right' }} />
   </Stack.Navigator></NavigationContainer>;
 }
 export default function App() {

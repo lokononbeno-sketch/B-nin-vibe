@@ -52,8 +52,8 @@ function AppContent() {
   </Stack.Navigator></NavigationContainer>;
 }
 export default function App() {
-  const [fontsLoaded] = useFonts({ ...Ionicons.font, ...FontAwesome.font });
-  if (!fontsLoaded) return null;
+  const [fontsLoaded, fontError] = useFonts({ ...Ionicons.font, ...FontAwesome.font });
+  if (!fontsLoaded && !fontError) return <View style={{ flex: 1, backgroundColor: C.bg, alignItems: 'center', justifyContent: 'center' }}><ActivityIndicator size="large" color={C.pink} /></View>;
   return <GestureHandlerRootView style={{ flex: 1 }}><SafeAreaProvider><StoreProvider><AppContent/></StoreProvider></SafeAreaProvider></GestureHandlerRootView>;
 }
 const styles = StyleSheet.create({

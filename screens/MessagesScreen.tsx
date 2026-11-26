@@ -6,7 +6,7 @@ import {useStore} from '../lib/store';
 import {supabase} from '../lib/supabase';
 import {C} from '../lib/theme';
 
-export default function MessagesScreen({navigation}:any){
+export default function MessagesScreen({navigation,route}:any){
  const {user}=useStore();
  const [rows,setRows]=useState<any[]>([]);
  const [profiles,setProfiles]=useState<any[]>([]);
@@ -20,10 +20,10 @@ export default function MessagesScreen({navigation}:any){
   const {data,error}=await supabase.from('direct_messages').select('*').or('sender_id.eq.'+user.id+',recipient_id.eq.'+user.id).order('created_at',{ascending:true}).limit(500);
   if(error){Alert.alert('Messagerie',error.message);return;}
   setRows(data||[]);
-  const ids=[...new Set((data||[]).map((m:any)=>m.sender_id===user.id?m.recipient_id:m.sender_id))];
-  if(ids.length){const p=await supabase.from('profiles').select('id,display_name,username,avatar_url,city').in('id',ids);setProfiles(p.data||[]);}
+  const p=await supabase.from('profiles').select('id,display_name,username,avatar_url,city').neq('id',user.id).limit(100);setProfiles(p.data||[]);
   setLoading(false);
  },[user]);
+ useEffect(()=>{if(route?.params?.recipient){setSelected(route.params.recipient);navigation.setParams({recipient:undefined});}},[route?.params?.recipient]);
  useEffect(()=>{load();if(!user)return;const ch=supabase.channel('direct-messages-'+user.id).on('postgres_changes',{event:'INSERT',schema:'public',table:'direct_messages'},()=>load()).subscribe();return()=>{supabase.removeChannel(ch);};},[load,user]);
  const conversations=useMemo(()=>{const map=new Map<string,any>();for(const m of rows){const id=m.sender_id===user?.id?m.recipient_id:m.sender_id;const old=map.get(id);if(!old||new Date(m.created_at)>new Date(old.created_at))map.set(id,{...m,otherId:id});}return [...map.values()].sort((a,b)=>new Date(b.created_at).getTime()-new Date(a.created_at).getTime());},[rows,user]);
  const thread=selected?rows.filter(m=>(m.sender_id===user?.id&&m.recipient_id===selected.id)||(m.sender_id===selected.id&&m.recipient_id===user?.id)): [];

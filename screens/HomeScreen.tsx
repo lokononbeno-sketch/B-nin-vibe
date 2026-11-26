@@ -47,13 +47,13 @@ export default function HomeScreen({ navigation }: any) {
             <LinearGradient colors={cat === item.id ? item.grad : ['#262640', '#262640']} style={s.catCircle}>
               <Ionicons name={item.icon as any} size={24} color="#fff" />
             </LinearGradient>
-            <Text style={[s.catLabel, cat === item.id && { color: '#fff' }]} numberOfLines={1}>{({ tout: 'Tout', concert: 'Concerts', anniversaire: 'Anniv.', piquenique: 'Pique-nique', gala: 'Galas', miss: 'Miss', shield: 'Shield', sortie: 'Sorties' } as any)[item.id]}</Text>
+            <Text style={[s.catLabel, cat === item.id && { color: '#fff' }]} numberOfLines={1}>{({ tout: 'Tout', concert: 'Concerts', anniversaire: 'Anniv.', piquenique: 'Pique-nique', gala: 'Galas', miss: 'Miss', chill: 'Chill', sortie: 'Sorties' } as any)[item.id]}</Text>
           </Pressable>
         )} />
       <Pressable onPress={() => navigation.navigate('Creer')}>
         <LinearGradient colors={GRAD} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={s.promo}>
           <View style={{ flex: 1 }}><Text style={s.promoH}>Organise ta propre sortie</Text>
-            <Text style={s.promoT}>Anniversaire, shield, gala… Publie en 1 minute, partage sur WhatsApp et Facebook.</Text>
+            <Text style={s.promoT}>Anniversaire, chill, concert, gala… Publie en 1 minute, partage sur WhatsApp et Facebook.</Text>
             <View style={s.promoBtn}><Text style={s.promoBtnT}>Créer un événement</Text><Ionicons name="arrow-forward" size={14} color="#7C3AED" /></View>
           </View>
           <View style={s.promoIcon}><Ionicons name="sparkles" size={40} color="rgba(255,255,255,0.95)" /></View>

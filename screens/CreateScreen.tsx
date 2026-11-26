@@ -15,7 +15,7 @@ const TIMES=['08h00','10h00','12h00','15h00','18h00','19h30','20h00','21h00','22
 const TEMPLATES:{label:string;cat:VEvent['category'];title:string;desc:string}[]=[
 {label:'Anniversaire',cat:'anniversaire',title:'Mon anniversaire — Grande soirée',desc:"On fête ça en grand ! Musique, buffet, gâteau à minuit et plein de surprises. Dress code libre, bonne humeur obligatoire."},
 {label:'Pique-nique',cat:'piquenique',title:'Pique-nique entre amis au parc',desc:"Plaids, enceinte, jeux et trucs à grignoter à partager. Chacun ramène quelque chose, on profite du soleil ensemble."},
-{label:'Shield',cat:'shield',title:'SHIELD Party — Soirée mystère',desc:"Lieu secret révélé 24 h avant, masque à l'entrée, ambiance immersive toute la nuit. Places limitées."},
+{label:'Chill',cat:'chill',title:'Chill entre amis — Détente & bonne ambiance',desc:"Un moment tranquille entre amis : musique douce, discussions, jeux et bonne humeur. Chacun vient comme il est."},
 {label:'Gala',cat:'gala',title:'Gala 2026 — Soirée de prestige',desc:"Tapis rouge, dîner, spectacle et soirée dansante. Tenue de gala exigée."}];
 function nextDays(n:number){const out:{label:string;short:string}[]=[];const jours=['Dim.','Lun.','Mar.','Mer.','Jeu.','Ven.','Sam.'];const mois=['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'];for(let i=1;i<=n;i++){const d=new Date();d.setDate(d.getDate()+i);out.push({label:`${jours[d.getDay()]} ${d.getDate()} ${mois[d.getMonth()]} ${d.getFullYear()}`,short:`${String(d.getDate()).padStart(2,'0')} ${mois[d.getMonth()].slice(0,4).toUpperCase()}`});}return out;}
 export default function CreateScreen({navigation}:any){

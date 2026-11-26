@@ -27,6 +27,14 @@ export const CATEGORIES: Category[] = [
   { id: 'mode', label: 'Mode & beauté', icon: 'shirt', color: '#F0ABFC', grad: ['#A21CAF', '#BE185D'] },
   { id: 'excursion', label: 'Excursions & tourisme', icon: 'map', color: '#6EE7B7', grad: ['#047857', '#0369A1'] },
   { id: 'lancement', label: 'Lancements & promotions', icon: 'rocket', color: '#FCA5A5', grad: ['#B91C1C', '#C2410C'] },
+  { id: 'traditionnel', label: 'Fêtes traditionnelles & culturelles', icon: 'people', color: '#F59E0B', grad: ['#92400E', '#D97706'] },
+  { id: 'vodun', label: 'Célébrations Vodun & patrimoine', icon: 'flower', color: '#C084FC', grad: ['#6B21A8', '#A855F7'] },
+  { id: 'bapteme', label: 'Baptêmes & communions', icon: 'water', color: '#60A5FA', grad: ['#1D4ED8', '#0891B2'] },
+  { id: 'dot', label: 'Dots & fiançailles', icon: 'heart', color: '#F9A8D4', grad: ['#BE185D', '#9333EA'] },
+  { id: 'funerailles', label: 'Hommages & cérémonies funèbres', icon: 'flower', color: '#94A3B8', grad: ['#334155', '#64748B'] },
+  { id: 'reveillon', label: 'Réveillons & fêtes de fin d’année', icon: 'sparkles', color: '#FDE68A', grad: ['#B45309', '#BE123C'] },
+  { id: 'marche', label: 'Marchés, ventes & déstockages', icon: 'storefront', color: '#FDBA74', grad: ['#C2410C', '#9A3412'] },
+  { id: 'caravane', label: 'Caravanes & animations populaires', icon: 'megaphone', color: '#67E8F9', grad: ['#0E7490', '#1D4ED8'] },
   { id: 'autres', label: 'Autres événements', icon: 'ellipsis-horizontal-circle', color: '#CBD5E1', grad: ['#475569', '#64748B'] },
 ];
 export const COVERS: { id: string; label: string; uri: string }[] = [

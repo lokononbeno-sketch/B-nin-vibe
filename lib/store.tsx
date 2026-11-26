@@ -26,7 +26,7 @@ const frenchDate = (value: string) => new Date(value).toLocaleDateString('fr-FR'
 const toEvent = (row: any, organizer: any = null, participantCount = 0, isMine = false): VEvent => {
   const d = new Date(row.starts_at);
   return {
-    id: row.id, title: row.title, category: row.category, image: row.image_url || '',
+    id: row.id, title: row.title, category: row.category, image: row.image_url || '', inviteToken: row.invite_token || undefined,
     dateLabel: frenchDate(row.starts_at), day: d.toLocaleDateString('fr-FR',{day:'2-digit',month:'short'}).toUpperCase(),
     time: d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}),
     lieu: row.venue, ville: row.city, price: Number(row.price || 0),

@@ -2,8 +2,8 @@ import { Linking, Share, Platform, Alert } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import { VEvent } from './types';
 import { catLabel } from './data';
-export const eventLink = (e: VEvent) => `https://vibeout.app/e/${e.id}`;
-export const shareText = (e: VEvent) => `${e.title}\n${e.dateLabel} • ${e.time}\n${e.lieu}, ${e.ville}\n${e.priceLabel} • ${catLabel(e.category)}\n\nJe serai de la partie, et toi ? Rejoins-nous sur VibeOut :`;
+export const eventLink = (e: VEvent) => { const base = 'https://lokononbeno-sketch.github.io/B-nin-vibe/'; const params = new URLSearchParams({ event: e.id }); if (e.visibility === 'prive' && e.inviteToken) params.set('invite', e.inviteToken); return `${base}?${params.toString()}`; };
+export const shareText = (e: VEvent) => `${e.title}\n${e.dateLabel} • ${e.time}\n${e.lieu}, ${e.ville}\n${e.priceLabel} • ${catLabel(e.category)}\n\nJe serai de la partie, et toi ? Rejoins-nous sur Bénin Vibe :`;
 export const whatsAppText = (e: VEvent) => `*${e.title}*\n\nDate : ${e.dateLabel} - ${e.time}\nLieu : ${e.lieu}, ${e.ville}\nTarif : ${e.priceLabel}\nDeja ${e.participants} participants inscrits\n\n${e.description.slice(0,140)}...\n\nReserve ta place ici : ${eventLink(e)}`;
 async function open(url: string, fallback?: string) { try { const ok=await Linking.canOpenURL(url); if(ok){await Linking.openURL(url);return true;} if(fallback){await Linking.openURL(fallback);return true;} return false; } catch { if(fallback){try{await Linking.openURL(fallback);return true;}catch{return false;}} return false; } }
 export async function shareToFacebook(e: VEvent) { const u=encodeURIComponent(eventLink(e)), quote=encodeURIComponent(shareText(e)); const done=await open(`https://www.facebook.com/sharer/sharer.php?u=${u}&quote=${quote}`); if(!done) await shareGeneric(e); }

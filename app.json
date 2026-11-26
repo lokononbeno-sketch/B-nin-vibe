@@ -72,6 +72,9 @@
           "cameraPermission": "Bénin Vibe utilise ton appareil photo pour prendre une photo de profil ou une affiche."
         }
       ]
-    ]
+    ],
+    "experiments": {
+      "baseUrl": "/B-nin-vibe"
+    }
   }
 }

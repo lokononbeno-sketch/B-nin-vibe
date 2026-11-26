@@ -1,4 +1,4 @@
-export type CategoryId = 'tout' | 'concert' | 'anniversaire' | 'piquenique' | 'gala' | 'miss' | 'shield' | 'sortie';
+export type CategoryId = 'tout' | 'concert' | 'anniversaire' | 'piquenique' | 'gala' | 'miss' | 'chill' | 'sortie' | 'festival' | 'soiree' | 'conference' | 'formation' | 'atelier' | 'foire' | 'ceremonie' | 'sport' | 'cinema' | 'humour' | 'networking' | 'solidarite' | 'religieux' | 'campus' | 'gastronomie' | 'mode' | 'excursion' | 'lancement';
 export interface VEvent {
   id: string; title: string; category: Exclude<CategoryId, 'tout'>; image: string;
   dateLabel: string; day: string; time: string; lieu: string; ville: string;

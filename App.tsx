@@ -60,10 +60,34 @@ function Tabs() {
   </Tab.Navigator>;
 }
 const navTheme = { ...DarkTheme, colors: { ...DarkTheme.colors, background: C.bg, card: C.bg, border: C.line, primary: C.pink } };
+
+// Liens : https://lokononbeno-sketch.github.io/B-nin-vibe/?event=ID&invite=TOKEN
+// (l'ancien motif '?event=:id' faisait planter l'appli : React Navigation n'accepte pas '?' dans un chemin)
+const WEB_BASE = '/B-nin-vibe/';
+const linking: any = {
+  prefixes: ['https://lokononbeno-sketch.github.io/B-nin-vibe/'],
+  config: { screens: { Tabs: '', EventDetail: 'event/:id' } },
+  getStateFromPath: (path: string) => {
+    const query = path.includes('?') ? path.split('?')[1].split('#')[0] : '';
+    const params = new URLSearchParams(query);
+    const id = params.get('event');
+    if (!id) return undefined;
+    return { routes: [{ name: 'Tabs' }, { name: 'EventDetail', params: { id, invite: params.get('invite') || undefined } }] };
+  },
+  getPathFromState: (state: any) => {
+    const r = state?.routes?.[state.index ?? (state.routes?.length ?? 1) - 1];
+    if (r?.name === 'EventDetail' && r.params?.id) {
+      const inv = r.params.invite ? `&invite=${encodeURIComponent(r.params.invite)}` : '';
+      return `${WEB_BASE}?event=${encodeURIComponent(r.params.id)}${inv}`;
+    }
+    return WEB_BASE;
+  },
+};
+
 function AppContent() {
   const {authLoading}=useStore();
   if(authLoading)return <View style={{flex:1,backgroundColor:C.bg,alignItems:'center',justifyContent:'center'}}><ActivityIndicator size="large" color={C.pink}/></View>;
-  return <NavigationContainer theme={navTheme} linking={{prefixes:['https://lokononbeno-sketch.github.io/B-nin-vibe/'],config:{screens:{Tabs:'',EventDetail:'?event=:id&invite=:invite'}}}}><StatusBar style="light" /><Stack.Navigator screenOptions={{ headerShown: false, contentStyle: { backgroundColor: C.bg } }}>
+  return <NavigationContainer theme={navTheme} linking={linking}><StatusBar style="light" /><Stack.Navigator screenOptions={{ headerShown: false, contentStyle: { backgroundColor: C.bg } }}>
     <Stack.Screen name="Tabs" component={Tabs} />
     <Stack.Screen name="Auth" component={AuthScreen} options={{ presentation: 'modal' }} />
     <Stack.Screen name="EventDetail" component={EventDetailScreen} options={{ animation: 'slide_from_right' }} />
